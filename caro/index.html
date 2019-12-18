@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>caro</title>
+</head>
+
+<body>
+    <div>
+        <input type="number" min="2" name="row" placeholder="Nhập cột và dòng" />
+        <input type="number" min="2" name="number" placeholder="Nhập chiều dài" />
+        <button id="newGame">New Game</button>
+        <button id="refresh">Refresh</button>
+
+        <div id="player">
+            <span id="turn" >Player X</span>
+        </div>
+        <div id="caro"></div>
+        <div>
+            <span class="winner"></span>
+        </div>
+    </div>
+</body>
+<script>
+    const empty = "&nbsp;" // khoảng trắng
+    let N_Size = 3 // cột hàng mặc định
+    let number = 3 // chiều dài để thắng - default
+    let boxes = [] // array chứa các ô
+    let turn = 'X' // lượt - Player X
+    //let score 
+    let moves // số lượt đã đi
+    let finished = false // đã kết thúc
+    const btnRefresh = document.getElementById('refresh')
+    const btnNewGame = document.getElementById('newGame')
+
+
+    // tạo game mới với cột và chiều dài
+    function newGame() {
+        document.getElementById('caro').innerHTML = ''
+        let rc = document.querySelector('input[name="row"]')
+        let num = document.querySelector('input[name="number"]')
+        console.log(num)
+        console.log(rc)
+        if(!rc.value || !num.value){
+            alert('Nhập số cột hàng và chiều dài')
+            return;
+        }
+
+        number = num.value ? num.value : number
+        N_Size = rc.value ? rc.value : N_Size
+
+        if (N_Size < 2) {
+            alert("Tối thiểu là 2")
+            return;
+        }
+
+        createTable(N_Size)
+        refresh()
+    }
+
+    // refresh lại với cột hàng và chiều dài cũ
+    function refresh() {
+        finished = false
+       // score = {
+        //    'X': 0,
+       //     'O': 0
+       // }
+
+        moves = 0
+        turn = 'X'
+        document.getElementById('turn').textContent = 'Player ' + turn
+        document.querySelector('.winner').textContent = ''
+
+        boxes.forEach((box) => {
+            box.innerHTML = empty
+        })
+    }
+
+
+    // tạo bàn
+    function createTable(size) {
+        const board = document.createElement('table')
+        board.setAttribute('border', 1)
+
+        let count = 1
+        for (let i = 0; i < size; i++) {
+            const row = document.createElement('tr')
+            board.appendChild(row)
+            for (let j = 0; j < size; j++) {
+                const cell = document.createElement('td')
+                cell.setAttribute('height', 40)
+                cell.setAttribute('width', 40)
+                cell.setAttribute('align', 'center')
+
+                cell.classList.add('col' + j, 'row' + i)
+                if (i == j) {
+                    cell.classList.add('diagonal0')
+                }
+                if (j == size - i - 1) {
+                    cell.classList.add('diagonal1')
+                }
+                cell.identifer = count
+                cell.addEventListener('click', click)
+                row.appendChild(cell)
+                boxes.push(cell)
+                count += count
+
+            }
+        }
+        document.getElementById('caro').appendChild(board)
+    }
+
+    // kiểm tra chứa tag
+    function contains(selector, text) {
+        const elements = document.querySelectorAll(selector)
+        return [].filter.call(elements, element => RegExp(text).test(element.textContent))
+    }
+
+    // kiểm tra thắng
+    function isWin(clicked) {
+        let memberOf = clicked.className.split(/\s+/)
+        console.log(memberOf)
+        for (let i = 0; i < memberOf.length; i++) {
+            let testClass = '.' + memberOf[i]
+            console.log(testClass)
+            items = contains('#caro ' + testClass, turn)
+
+            if (items.length == number) {
+                console.log(items)
+                finished = true
+                return true
+            }
+        }
+        return false
+    }
+
+
+    // hàm khi click vô ô
+    function click() {
+        if (this.innerHTML !== empty) return;
+        if (finished == true) return;
+
+        this.innerHTML = turn
+        moves += 1
+        //score[turn] += this.identifer
+        //console.log("asdasdasdas",score)
+        if (isWin(this)) {
+            document.querySelector('.winner').innerHTML = 'người thắng ' + turn
+            //alert("Người thắng "+turn)
+            setTimeout(newGame, 1000)
+        } else if (moves == N_Size * N_Size) {
+            document.querySelector('.winner').innerHTML = 'hòa'
+            setTimeout(newGame, 1000)
+
+        } else {
+            turn = turn === 'X' ? 'O' : 'X'
+            document.getElementById('turn').textContent = 'Player ' + turn
+        }
+    }
+
+
+    btnNewGame.addEventListener('click', newGame)
+    btnRefresh.addEventListener('click', refresh)
+</script>
+
+</html>

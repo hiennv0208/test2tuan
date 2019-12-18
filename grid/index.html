@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>grid</title>
+    <style>
+        #wrap {
+            overflow: auto;
+        }
+
+        thead {
+            background-color: aqua;
+        }
+
+        table {
+
+            width: 100%;
+            height: 400px;
+            overflow: auto;
+
+
+            /* margin: 30px;
+            padding: 20px;
+            border: 10px solid black; */
+        }
+    </style>
+</head>
+
+<body>
+    <input type="number" min="1" name="row" placeholder="Nhập số dòng" />
+    <input type="number" min="1" name="col" placeholder="Nhập số cột" />
+    <button>Create Grid</button>
+    <div id="wrap">
+        <table id="table" border="1">
+            <thead>
+
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+</body>
+<script>
+    let numRow = 0, numCol = 0
+    const row = document.querySelector('input[name="row"]')
+    const col = document.querySelector('input[name="col"]')
+    const btnCreate = document.querySelector('button')
+    const thead = document.querySelector('table > thead')
+    const tbody = document.querySelector('table > tbody')
+    const table = document.querySelector('table')
+    let headers
+    let nextItem = 1
+    let arr = []
+
+
+    // function createRandom() {
+    //     numRow = row.value ? row.value : numRow
+    //     numCol = col.value ? col.value : numCol
+    //     for (let i = 0; i < numRow; i++) {
+    //         let arrRandom = []
+    //         for (let j = 0; j < numCol; j++) {
+    //             arrRandom.push(Math.floor(Math.random() * 1000) + 1)
+    //         }
+    //         arr.push(arrRandom)
+    //     }
+    // }
+
+    // function createTr(arrTd) {
+
+    // }
+    // function createTd(arr) {
+    //     arr.forEach(num => {})
+    // }
+
+
+
+    const wrap = document.getElementById("table")
+    let offsettop = wrap.offsetTop
+
+    // cố định thead
+
+    window.addEventListener("scroll", function () {
+        let translate = window.scrollY < 3 ? "translate(0," + (window.scrollY) + "px)" : "translate(0," + (window.scrollY - offsettop) + "px)"
+        console.log(translate)
+        document.querySelector("thead").style.transform = translate;
+    });
+
+
+    // tạo grid
+    function createGrid() {
+        thead.innerHTML = ''
+        tbody.innerHTML = ''
+        numRow = row.value ? row.value : numRow
+        numCol = col.value ? col.value : numCol
+
+        // tạo th
+        const rowHead = document.createElement('tr')
+        for (let i = 0; i < numCol; i++) {
+            const th = document.createElement('th')
+
+            th.setAttribute('width', 20)
+            th.setAttribute('height', 20)
+            th.setAttribute('align', 'center')
+            th.textContent = i + 1
+            rowHead.appendChild(th)
+        }
+        thead.appendChild(rowHead)
+
+
+        // tạo row random
+        for (let i = 0; i < numRow; i++) {
+            const row = document.createElement('tr')
+            row.classList.add('item')
+            for (let j = 0; j < numCol; j++) {
+                const cell = document.createElement('td')
+                cell.setAttribute('width', 20)
+                cell.setAttribute('height', 20)
+                cell.setAttribute('align', 'center')
+                cell.textContent = Math.floor(Math.random() * 1000) + 1
+                row.appendChild(cell)
+            }
+            tbody.appendChild(row)
+        }
+
+        // if (numRow > 100) {
+        //     console.log(numRow)
+        //     numRow = numRow > 100 ? 100 : numRow - 100
+        //     const loadMore = () => {
+        //         for (let i = 0; i < numRow; i++) {
+        //             const row = document.createElement('tr')
+        //             row.classList.add('item')
+
+        //             for (let j = 0; j < numCol; j++) {
+        //                 const cell = document.createElement('td')
+        //                 cell.setAttribute('width', 20)
+        //                 cell.setAttribute('height', 20)
+        //                 cell.setAttribute('align', 'center')
+        //                 cell.textContent = Math.floor(Math.random() * 1000) + 1
+        //                 row.appendChild(cell)
+        //             }
+        //             tbody.appendChild(row)
+        //         }
+        //     }
+        //     numRow -= 100
+        //     table.addEventListener("scroll", function () {
+        //         if (table.scrollTop + table.clientHeight >= table.scrollHeight) {
+        //             loadMore()
+        //         }
+        //     })
+        //     loadMore()
+        // } else {
+        //     for (let i = 0; i < numRow; i++) {
+        //         const row = document.createElement('tr')
+        //         row.classList.add('item')
+        //         for (let j = 0; j < numCol; j++) {
+        //             const cell = document.createElement('td')
+        //             cell.setAttribute('width', 20)
+        //             cell.setAttribute('height', 20)
+        //             cell.setAttribute('align', 'center')
+        //             cell.textContent = Math.floor(Math.random() * 1000) + 1
+        //             row.appendChild(cell)
+        //         }
+        //         tbody.appendChild(row)
+        //     }
+        // }
+
+
+        // thêm event click th để sort
+        headers = document.querySelectorAll('table thead tr th')
+        console.log(headers)
+        headers.forEach((header, i) => {
+            //    const tr = document.querySelectorAll('.item')[i].firstChild
+            //    console.log(tr)
+            header.addEventListener('click', () => {
+                const tr = document.querySelectorAll('.item')
+                tr.forEach(() => {
+                    sortColumn(i)
+                })
+
+            })
+        })
+    }
+
+
+    // sort với index column
+    function sortColumn(column) {
+        const tr = document.querySelectorAll('.item')
+        console.log(tr)
+        const h = document.querySelector("table tr:nth-child(2)")
+        console.log(tr.item(0).cells)
+        for (let i = 0; i < tr.length - 1; i++) {
+            for (let j = 0; j < tr.length - (i + 1); j++) {
+                //swap
+                if (parseInt(tr.item(j).cells[column].innerHTML)
+                    > parseInt(tr.item(j + 1).cells[column].innerHTML)) {
+                    tbody.insertBefore(tr.item(j + 1), tr.item(j))
+                }
+            }
+        }
+
+
+    }
+
+
+    btnCreate.addEventListener('click', createGrid)
+
+
+
+</script>
+
+</html>
